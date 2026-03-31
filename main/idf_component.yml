@@ -1,0 +1,5 @@
+dependencies:
+  espressif/esp_lcd_st77916: ^2.0.0
+  espressif/esp_jpeg: '*'
+  espressif/esp_lcd_touch_cst816s: '*'
+  espressif/esp-sr: '*'
