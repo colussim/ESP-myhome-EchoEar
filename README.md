@@ -1,11 +1,11 @@
 ![ESP32](https://img.shields.io/badge/ESP32-Embedded-red) ![ESP-IDF](https://img.shields.io/badge/Framework-ESP--IDF-blue) ![Language](https://img.shields.io/badge/Language-C-informational) [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Quality Gate](imgs/badges/sonarqube-quality-gate.svg)
 
 
-
-#ESP-VoCat AI Voice Satellite
+# ESP-VoCat AI Voice Satellite
 
 ![schema](imgs/esp-vocat.png)
 
+---
 
 ## 🛠️ Hardware
 
