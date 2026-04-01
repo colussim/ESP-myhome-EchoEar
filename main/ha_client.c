@@ -168,8 +168,8 @@ esp_err_t ha_stt_recognize(const uint8_t *wav_data, size_t wav_len,
     }
 
     /* IMPORTANT:
-       Ici on ne parse pas le JSON.
-       On renvoie le JSON brut à voice_cmd.c
+        Here, we don't parse the JSON.
+        We send the raw JSON to voice_cmd.c
     */
     strncpy(result->text, resp.buf, sizeof(result->text) - 1);
     result->text[sizeof(result->text) - 1] = '\0';

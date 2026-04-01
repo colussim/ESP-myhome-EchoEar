@@ -755,16 +755,16 @@ esp_err_t audio_player_mic_read(int16_t *buf, size_t max_samples,
     if (!s_mic_active || s_playing) return ESP_ERR_INVALID_STATE;
     size_t to_read = max_samples;
     if (to_read > MIC_FRAME_MAX) to_read = MIC_FRAME_MAX;
-    // Lecture I2S TDM : 4 canaux * 16 bits = 8 octets par période
+    // Read I2S TDM : 4 channels * 16 bits = 8 bytes per period
     size_t bytes_read = 0;
     esp_err_t ret = i2s_channel_read(s_i2s_rx, s_mic_stereo_buf,
                                      to_read * 4 * sizeof(int16_t),
                                      &bytes_read, timeout);
     if (ret != ESP_OK) return ret;
-    // Nombre total d'échantillons lus (tous canaux confondus)
+    // Total number of samples read (all channels)
     size_t total_samples = bytes_read / sizeof(int16_t);
     size_t mono_samples = total_samples / 4;
-    // Calcul d’énergie pour chaque canal (détection du canal actif)
+    // Calculate energy for each channel (detect active channel)
     int64_t energy[4] = {0};
     for (size_t i = 0; i < mono_samples; i++) {
         for (int ch = 0; ch < 4; ch++) {

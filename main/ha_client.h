@@ -7,16 +7,16 @@
 #include "esp_err.h"
 
 typedef struct {
-    char text[1024];   // contient le JSON brut renvoyé par le backend
+    char text[1024];   // contains the raw JSON returned by the backend
     bool success;
 } ha_stt_result_t;
 
 esp_err_t ha_client_init(void);
 
 /**
- * @brief Envoie un WAV brut au backend et récupère le JSON brut.
+ * @brief Sends a raw WAV to the backend and retrieves the raw JSON.
  *
- * Le backend renvoie par exemple :
+ * The backend returns, for example:
  * {
  *   "status": "success",
  *   "heard": "Kira",

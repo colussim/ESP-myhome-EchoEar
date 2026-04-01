@@ -6,52 +6,54 @@
 #include "freertos/FreeRTOS.h"
 
 /**
- * @brief Initialise le matériel audio (I2C, ES8311, I2S, GPIOs ampli/codec)
+ * @brief Initialize the audio equipment (I2C, ES8311, I2S, GPIOs ampli/codec)
  */
 esp_err_t audio_player_init(i2c_master_bus_handle_t i2c_bus);
 
 /**
- * @brief Joue un fichier MP3 pré-enregistré par ID (1..6)
+ * @brief Play a pre-recorded MP3 file by ID (1..6)
  */
 esp_err_t audio_player_play_file(int id);
 
 /**
- * @brief Joue un buffer MP3 depuis la PSRAM (ex: ElevenLabs TTS)
- * @note Le buffer sera libéré automatiquement après lecture
+ * @brief Play an MP3 buffer from PSRAM (e.g., ElevenLabs TTS)
+ * @note The buffer will be automatically freed after playback
  */
 esp_err_t audio_player_play_buffer(uint8_t *buf, size_t len);
 
 /**
- * @brief Arrête la lecture en cours
+ * @brief Stop the current playback
  */
 void audio_player_stop(void);
 
 /**
- * @brief Règle le volume (0.0 à 1.0)
+ * @brief Set the volume (0.0 to 1.0)
+
  */
 void audio_player_set_volume(float vol);
 
 /**
- * @brief Vérifie si une lecture est en cours
+ * @brief Check if playback is in progress
  */
 bool audio_player_is_playing(void);
 
 /**
- * @brief Retourne le volume actuel
+ * @brief Get the current volume
  */
 float audio_player_get_volume(void);
 
 /**
- * @brief Retourne le nom du fichier en cours de lecture
+ * @brief Get the name of the currently playing file
  */
 const char *audio_player_current_file(void);
 
 /**
- * @brief Retourne la dernière erreur
+ * @brief Get the last error
+
  */
 const char *audio_player_last_error(void);
 
-// ===== IDs fichiers MP3 de dialogue =====
+// ===== IDs file MP3 for dialogue =====
 #define AUDIO_MSG_COMMENT_AIDER  7
 #define AUDIO_MSG_FAIT           8
 #define AUDIO_MSG_BONNE_JOURNEE  9
@@ -61,22 +63,22 @@ const char *audio_player_last_error(void);
 // ===== Microphone capture API =====
 
 /**
- * @brief Active le micro (ES8311 ADC via I2S RX, 16kHz)
+ * @brief Activate the microphone (ES8311 ADC via I2S RX, 16kHz)
  */
 esp_err_t audio_player_mic_start(void);
 
 /**
- * @brief Désactive le micro
+ * @brief Deactivate the microphone
  */
 esp_err_t audio_player_mic_stop(void);
 
 /**
- * @brief Lit des échantillons mono 16-bit depuis le micro
+ * @brief Read 16-bit mono samples from the microphone
  */
 esp_err_t audio_player_mic_read(int16_t *buf, size_t max_samples,
                                  size_t *out_samples, TickType_t timeout);
 
 /**
- * @brief Vérifie si le micro est actif
+ * @brief Check if the microphone is active
  */
 bool audio_player_mic_is_active(void);

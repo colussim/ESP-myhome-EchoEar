@@ -58,7 +58,7 @@ esp_err_t led_anim_init(void)
     };
     ESP_RETURN_ON_ERROR(ledc_channel_config(&ch_cfg), TAG, "LEDC channel");
 
-    ESP_LOGI(TAG, "LED animation initialisée sur GPIO%d", BOARD_LED_GPIO);
+    ESP_LOGI(TAG, "LED animation initialized on GPIO%d", BOARD_LED_GPIO);
     return ESP_OK;
 }
 
@@ -73,5 +73,5 @@ void led_anim_stop(void)
 {
     if (!s_anim_running) return;
     s_anim_running = false;
-    // La task se termine d'elle-même après la prochaine itération du fade
+    // The task will terminate itself after the next fade iteration
 }

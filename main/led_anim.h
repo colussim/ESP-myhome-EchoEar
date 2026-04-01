@@ -3,16 +3,16 @@
 #include "esp_err.h"
 
 /**
- * @brief Initialise la LED (LEDC PWM sur GPIO43)
+ * @brief Initializes the LED (LEDC PWM on GPIO43)
  */
 esp_err_t led_anim_init(void);
 
 /**
- * @brief Démarre l'animation de respiration pendant la lecture audio
+ * @brief Starts the breathing animation during audio playback
  */
 void led_anim_start(void);
 
 /**
- * @brief Arrête l'animation et éteint la LED
+ * @brief Stops the animation and turns off the LED
  */
 void led_anim_stop(void);

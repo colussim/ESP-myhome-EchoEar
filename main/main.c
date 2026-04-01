@@ -234,7 +234,7 @@ static void show_kira_and_greet1(void)
     mark_activity_from_task();
 }
 
-static void show_kira_and_greet(void)
+static void show_kira_and_greetO(void)
 {
     s_touch_wake_armed = false;
 
@@ -251,11 +251,29 @@ static void show_kira_and_greet(void)
     mark_activity_from_task();
 }
 
+static void show_kira_and_greet(void)
+{
+    s_touch_wake_armed = false;
+
+    screen_backlight_set(true);
+    vTaskDelay(pdMS_TO_TICKS(80));
+
+    face_anim_stop_talking();
+    face_anim_set_amplitude(0);
+
+    ESP_LOGI(TAG, "Touch wake: play id 7");
+    audio_player_play_file(7);
+
+    mark_activity_from_task();
+}
+
+
 // -----------------------------------------------------------------------------
 // Public hook to be called later by the real touchscreen module
 // -----------------------------------------------------------------------------
 void main_touch_wake_request(void)
 {
+    ESP_LOGI(TAG, "main_touch_wake_request()");
     s_touch_wake_pending = true;
 }
 
@@ -278,60 +296,6 @@ bool main_is_touch_wake_armed(void)
 // Inactivity / wake management task
 // -----------------------------------------------------------------------------
 
-
-static void inactivity_task2(void *arg)
-{
-    (void)arg;
-
-    s_last_activity_tick = xTaskGetTickCount();
-    s_last_wake_tick = 0;
-
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(INACTIVITY_POLL_MS));
-
-        TickType_t now = xTaskGetTickCount();
-        uint32_t idle_ms = ticks_to_ms(now - s_last_activity_tick);
-
-        // Keep screen awake while audio is playing
-        if (audio_player_is_playing()) {
-            mark_activity_from_task();
-            continue;
-        }
-
-        // Go to sleep after inactivity
-      /*  if (!s_screen_sleeping && idle_ms >= INACTIVITY_TIMEOUT_MS) {
-            ESP_LOGI(TAG, "Inactivity timeout reached -> screen sleep");
-            screen_backlight_set(false);
-        }*/
-
-        if (!s_screen_sleeping && idle_ms >= INACTIVITY_TIMEOUT_MS) {
-    ESP_LOGI(TAG, "Inactivity timeout reached -> screen sleep");
-    s_touch_wake_armed = false;
-    screen_backlight_set(false);
-    vTaskDelay(pdMS_TO_TICKS(1500));   // laisse le système se stabiliser
-    s_touch_wake_armed = true;
-}
-
-        // Wake request from real touchscreen driver callback
-        if (s_touch_wake_pending) {
-            s_touch_wake_pending = false;
-
-            uint32_t since_last_wake_ms = ticks_to_ms(now - s_last_wake_tick);
-            if (since_last_wake_ms < WAKE_DEBOUNCE_MS) {
-                continue;
-            }
-
-            s_last_wake_tick = now;
-            mark_activity_from_task();
-
-            if (s_screen_sleeping) {
-                ESP_LOGI(TAG, "Touch wake event");
-                show_kira_and_greet();
-            }
-        }
-    }
-}
-
 static void inactivity_task(void *arg)
 {
     (void)arg;
@@ -339,27 +303,35 @@ static void inactivity_task(void *arg)
     s_last_activity_tick = xTaskGetTickCount();
     s_last_wake_tick = 0;
 
+    ESP_LOGI(TAG, "inactivity_task started");
+
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(INACTIVITY_POLL_MS));
 
         TickType_t now = xTaskGetTickCount();
         uint32_t idle_ms = ticks_to_ms(now - s_last_activity_tick);
 
+        /* During audio playback, the system is considered to be active. */
         if (audio_player_is_playing()) {
             mark_activity_from_task();
             continue;
         }
 
+        /* Screen sleep after inactivity */
         if (!s_screen_sleeping && idle_ms >= INACTIVITY_TIMEOUT_MS) {
             ESP_LOGI(TAG, "Inactivity timeout reached -> screen sleep");
             screen_backlight_set(false);
         }
 
+        /* Wake requested by touchscreen */
         if (s_touch_wake_pending) {
+            ESP_LOGI(TAG, "Touch wake pending detected");
             s_touch_wake_pending = false;
 
             uint32_t since_last_wake_ms = ticks_to_ms(now - s_last_wake_tick);
             if (since_last_wake_ms < WAKE_DEBOUNCE_MS) {
+                ESP_LOGI(TAG, "Touch wake ignored by debounce (%lu ms)",
+                         (unsigned long)since_last_wake_ms);
                 continue;
             }
 
@@ -367,13 +339,14 @@ static void inactivity_task(void *arg)
             mark_activity_from_task();
 
             if (s_screen_sleeping) {
-                ESP_LOGI(TAG, "Touch wake event");
+                ESP_LOGI(TAG, "Touch wake event -> screen on + greeting");
                 show_kira_and_greet();
+            } else {
+                ESP_LOGI(TAG, "Touch wake received but screen already on");
             }
         }
     }
 }
-
 
 // -----------------------------------------------------------------------------
 // Wi-Fi events
@@ -536,7 +509,7 @@ void app_main(void)
     ESP_ERROR_CHECK(http_api_start());
    ESP_ERROR_CHECK(voice_cmd_init());
    ESP_ERROR_CHECK(touch_wakeup_init());
-
+ESP_LOGI(TAG, "touch_wakeup_init() OK");
  
 
    BaseType_t ok = xTaskCreatePinnedToCore(

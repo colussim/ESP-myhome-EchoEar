@@ -13,7 +13,7 @@
 
 // ===== ElevenLabs TTS =====
 #define ELEVENLABS_KEY      SECRET_ELEVENLABS_KEY
-#define VOICE_ID            "6vTyAgAT8PncODBcLjRf"
+#define VOICE_ID            "6vTyAgAT8PncODBcL"
 #define ENABLE_ELEVENLABS   0
 
 // ===== Auth =====
