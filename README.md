@@ -4,6 +4,8 @@
 
 #ESP-VoCat AI Voice Satellite
 
+![schema](imgs/esp-vocat.png)
+
 
 ## 🛠️ Hardware
 
@@ -29,17 +31,19 @@ idf.py --version
 ESP-IDF v5.4.1
 ```
 
-**🏗️ Project creation + adding the Component zigbee**
+**🏗️ Project creation + adding the Components**
 
 ```bash
 
-idf.py create-project sensor-plant-zigbee 
-cd sensor-plant-zigbee 
-idf.py set-target esp32c6
+idf.py ESP-MYHOME-ECHOEAR
+cd ESP-MYHOME-ECHOEAR
+idf.py set-target esp32s3
 
-idf.py add-dependency "espressif/esp-zigbee-lib"
-idf.py add-dependency "espressif/esp-zboss-lib"
-
+idf.py add-dependency "espressif/minimp3"
+idf.py add-dependency "espressif/esp_lcd_st77916"
+idf.py add-dependency "espressif/esp_jpeg"
+idf.py add-dependency "  espressif/esp_lcd_touch_cst816s"
+  
 idf.py reconfigure
 
 ```
