@@ -31,8 +31,7 @@
 #include "voice_cmd.h"
 #include "touch_wakeup.h"
 #include "wake_word_local.h"
-
-
+#include "wake_local.h"
 
 static const char *TAG = "main";
 static volatile bool s_touch_wake_armed = false;
@@ -469,6 +468,7 @@ static void wake_test_task(void *arg)
         }
     }
 }
+
 // -----------------------------------------------------------------------------
 // app_main
 // -----------------------------------------------------------------------------

@@ -33,13 +33,11 @@ ESP-IDF v5.4.1
 
 ```bash
 
-idf.py create-project sensor-plant-zigbee 
-cd sensor-plant-zigbee 
-idf.py set-target esp32c6
+idf.py ESP-MYHOME-ECHOEAR
+cd ESP-MYHOME-ECHOEAR
+idf.py set-target esp32s3
 
-idf.py add-dependency "espressif/esp-zigbee-lib"
-idf.py add-dependency "espressif/esp-zboss-lib"
-
+idf.py add-dependency "espressif/minimp3"
 idf.py reconfigure
 
 ```
@@ -142,3 +140,13 @@ The patch-based approach provides a better balance between:
 •	Fully local (no cloud dependency)
 •	Easy to extend with new expressions
 
+
+
+
+---
+
+## 📚 References
+
+- [ESP-VoCat v1.2](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp-vocat/user_guide_v1.2.html)
+- [User Guide for Built-in Firmware](https://espressif.craft.me/CI2XAhb4Ix7fZk)
+- [Examples:](https://github.com/espressif/esp-brookesia/tree/master/products/speaker)

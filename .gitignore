@@ -1,0 +1,10 @@
+ESP32-S3-TTS-4_elevenlabs_psram.ino
+ESP32-S3-TTS-4_elevenlabs_psram.c
+ESP32-S3-TTS-4_elevenlabs_psram.ino
+old/
+.DS_Store
+echoear_idf/
+build/
+setenv.sh
+main/secrets.h
+main/config.h
