@@ -62,8 +62,8 @@ typedef struct {
     bool kiraactive;
     bool ha_ok;
     char status[32];
-    char heard[256];
-    char reply[256];
+    char heard[512];
+    char reply[1024];
     char ha_ack[64];
     char category[32];
 } backend_result_t;
