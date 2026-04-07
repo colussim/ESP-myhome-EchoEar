@@ -428,6 +428,21 @@ void app_main(void)
     face_anim_set_amplitude(0);
     screen_backlight_set(true);
 
+    // Salut de démarrage : Bonjour (ID 14) si journée, Bonsoir (ID 15) si soir/nuit
+    {
+        time_t now = time(NULL);
+        struct tm tinfo;
+        localtime_r(&now, &tinfo);
+        int hour = tinfo.tm_hour;
+        int greeting_id = (hour >= 6 && hour < 20) ? 11 : 12;
+        ESP_LOGI(TAG, "Startup greeting: hour=%d, playing id %d", hour, greeting_id);
+        audio_player_play_file(greeting_id);
+        // Attendre la fin du message avant de démarrer le wake word
+        while (audio_player_is_playing()) {
+            vTaskDelay(pdMS_TO_TICKS(100));
+        }
+    }
+
     // HTTP API
     ESP_ERROR_CHECK(http_api_start());
 

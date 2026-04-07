@@ -63,8 +63,8 @@ static const char *kFiles[] = {
     "/spiffs/msg/fait.mp3",
     "/spiffs/msg/bonne_journee.mp3",
     "/spiffs/msg/oui.mp3",
-    "/spiffs/msg/Bonjour-je-suis-kira.mp3",
-    "/spiffs/msg/Bonsoir-je-suis-kira.mp3",
+    "/spiffs/msg/Bonjour-je-suis-kira-aide.mp3",
+    "/spiffs/msg/Bonsoir-je-suis-kira-aide.mp3",
     "/spiffs/msg/Desoler.mp3"
 };
 #define NUM_AUDIO_FILES (sizeof(kFiles) / sizeof(kFiles[0]))
