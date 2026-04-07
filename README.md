@@ -90,7 +90,7 @@ This approach ensures:
 - consistent voice quality
 - reduced backend load
 
-A total of 13 predefined French audio messages are available, indexed from 1 to 13.
+A total of 15 predefined French audio messages are available, indexed from 1 to 15.
 
 These files are declared in the *kFiles* array in *audio_player.c* and mapped to numeric IDs for easy playback control.
 
