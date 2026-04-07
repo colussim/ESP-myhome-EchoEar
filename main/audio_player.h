@@ -65,6 +65,7 @@ const char *audio_player_last_error(void);
 #define AUDIO_MSG_OUI           10
 #define AUDIO_MSG_ERROR         13
 
+
 // ===== Microphone capture API =====
 
 /**

@@ -15,7 +15,7 @@ extern void main_touch_wake_request(void);
 
 #define TAG "wake_local"
 #define WAKE_WORD_MODEL_PATH "model"
-#define WAKE_WORD_MODEL_NAME "wn9_heykira_tts3"
+
 
 static const esp_afe_sr_iface_t *afe_iface = NULL;
 static esp_afe_sr_data_t *afe_data = NULL;

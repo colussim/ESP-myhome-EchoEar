@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
+
+#define WAKE_WORD_MODEL_NAME "wn9_heykira_tts3" /* Name of the wake word model to use (must be present in the "model" folder of the SPIFFS partition) */
+
  
 #ifdef __cplusplus
 extern "C" {
