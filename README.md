@@ -92,13 +92,14 @@ This approach ensures:
 
 A total of 13 predefined French audio messages are available, indexed from 1 to 13.
 
-These files are declared in the kFiles array in audio_player.c and mapped to numeric IDs for easy playback control.
+These files are declared in the *kFiles* array in *audio_player.c* and mapped to numeric IDs for easy playback control.
 
-For convenience, some commonly used messages are also exposed as macros in audio_player.h, for example:
-	•	AUDIO_MSG_COMMENT_AIDER → help prompt
-	•	AUDIO_MSG_FAIT → action completed
-	•	AUDIO_MSG_OUI → confirmation
-	•	AUDIO_MSG_ERROR → error feedback
+For convenience, some commonly used messages are also exposed as macros in *audio_player.h*, for example:
+
+- AUDIO_MSG_COMMENT_AIDER → help prompt
+- AUDIO_MSG_FAIT → action completed
+- AUDIO_MSG_OUI → confirmation
+- AUDIO_MSG_ERROR → error feedback
 
 This ID-based system allows lightweight triggering of audio responses without relying on dynamic text-to-speech.
 
@@ -221,18 +222,18 @@ model,     data, 0x06,     0x510000,  0xAF0000,
 ```
 
 **⚙️ How It Works**
-	•	The partition name must be exactly model
-	•	ESP-SR automatically detects this partition at runtime
-	•	On first boot:
-	•	the partition is formatted
-	•	speech models are generated and stored inside
+- The partition name must be exactly model
+- ESP-SR automatically detects this partition at runtime
+- On first boot:
+- the partition is formatted
+- speech models are generated and stored inside
 
 👉 No manual flashing of model files is required
 
 ⚠️ Important Notes
-	•	Do not use this partition for other data
-	•	Ensure enough space is allocated (models can be large)
-	•	The partition subtype 0x06 is required for ESP-SR
+- Do not use this partition for other data
+- Ensure enough space is allocated (models can be large)
+- The partition subtype 0x06 is required for ESP-SR
 
 
 The wake word model used is *wn9_heykira_tts3*, configured to detect the phrase *“Hey, Kira”*.
