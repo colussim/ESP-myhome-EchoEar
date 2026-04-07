@@ -2,8 +2,13 @@
 
 #include "esp_err.h"
 #include "driver/i2c_master.h"
+#include "driver/i2s_types.h" 
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
+
+i2s_chan_handle_t audio_player_get_rx_handle(void);
+
+
 
 /**
  * @brief Initialize the audio equipment (I2C, ES8311, I2S, GPIOs ampli/codec)

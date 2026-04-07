@@ -16,7 +16,7 @@ dependencies:
       require: private
       version: '>=5.0'
     source:
-      registry_url: https://components.espressif.com
+      registry_url: https://components.espressif.com/
       type: service
     version: 0.3.1
   espressif/esp-dsp:
@@ -26,26 +26,14 @@ dependencies:
       require: private
       version: '>=4.2'
     source:
-      registry_url: https://components.espressif.com
+      registry_url: https://components.espressif.com/
       type: service
     version: 1.7.0
   espressif/esp-sr:
-    component_hash: c518b25995cf03021a09442feedb7e40acba9f15d6aa903ebdfe0f657b08197b
-    dependencies:
-    - name: espressif/dl_fft
-      registry_url: https://components.espressif.com
-      require: private
-      version: '>=0.2.0'
-    - name: espressif/esp-dsp
-      registry_url: https://components.espressif.com
-      require: private
-      version: 1.7.0
-    - name: idf
-      require: private
-      version: '>=5.0'
+    dependencies: []
     source:
-      registry_url: https://components.espressif.com/
-      type: service
+      path: /Users/manu/Documents/App/ESP-myhome-EchoEar/components/espressif__esp-sr
+      type: local
     version: 2.4.0
   espressif/esp_jpeg:
     component_hash: defb83669293cbf86d0fa86b475ba5517aceed04ed70db435388c151ab37b5d7
@@ -82,7 +70,7 @@ dependencies:
       type: service
     version: 1.2.1
   espressif/esp_lcd_touch_cst816s:
-    component_hash: 6b11c489952c121396d4eaf5804b45e3f1f8dcd2c548dc6f2cbedf68622b013d
+    component_hash: a562ca3238756cca575908ed2cc4da4bab95f3815180b4f01f4c949b658bdd6d
     dependencies:
     - name: espressif/esp_lcd_touch
       registry_url: https://components.espressif.com
@@ -90,20 +78,34 @@ dependencies:
       version: ^1.2.0
     - name: idf
       require: private
-      version: '>=4.4.2'
+      version: '>=5.2'
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 1.1.1
+    version: 1.1.1~1
   idf:
     source:
       type: idf
     version: 5.4.1
+  joltwallet/littlefs:
+    component_hash: dcea25bcef2de023f089f5f01e8d8c46ad1b8ffef75861ad5ffb4098555839df
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.20.4
 direct_dependencies:
+- espressif/dl_fft
+- espressif/esp-dsp
 - espressif/esp-sr
 - espressif/esp_jpeg
 - espressif/esp_lcd_st77916
 - espressif/esp_lcd_touch_cst816s
-manifest_hash: d1f6abc42fd93e42a6637987baf4491db73b2e90861b8957c5aa4a1ae8b9304b
+- idf
+- joltwallet/littlefs
+manifest_hash: 6d0658311be1d1cbc3161117e38e95849619cb75b2d2a4e11b701a82e8c8f365
 target: esp32s3
 version: 2.0.0

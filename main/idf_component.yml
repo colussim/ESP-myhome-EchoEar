@@ -3,3 +3,5 @@ dependencies:
   espressif/esp_jpeg: '*'
   espressif/esp_lcd_touch_cst816s: '*'
   espressif/esp-sr: '*'
+  joltwallet/littlefs:
+    version: "^1.14.8"

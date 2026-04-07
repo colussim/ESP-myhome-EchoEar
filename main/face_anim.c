@@ -176,7 +176,7 @@ static esp_err_t load_base_jpg(void)
         ESP_LOGW(TAG, "jpg decoded as %dx%d, expected %dx%d", out.width, out.height, W, H);
     }
 
-    ESP_LOGI(TAG, "Fond JPG chargé: %dx%d", out.width, out.height);
+    ESP_LOGI(TAG, "loaded JPG background: %dx%d", out.width, out.height);
     return ESP_OK;
 }
 
@@ -229,7 +229,7 @@ static esp_err_t load_assets(void)
         return ret;
     }
 
-    // charge le fond bouche préparé
+    // load prepared mouth background
     ret = load_raw_rgb565("/spiffs/bg_mouth.raw", MOUTH_W, MOUTH_H, &s_bg_mouth);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "bg_mouth missing");

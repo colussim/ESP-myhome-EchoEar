@@ -17,7 +17,7 @@
 static const char *TAG = "display";
 
 #define LCD_HOST SPI2_HOST
-#define STRIP_H  90
+#define STRIP_H  60
 #define LCD_PIXEL_CLOCK_HZ (80 * 1000 * 1000)
 
 static esp_lcd_panel_handle_t s_panel = NULL;
@@ -64,8 +64,8 @@ esp_err_t display_init(void)
              BOARD_LCD_CLK, BOARD_LCD_D0, BOARD_LCD_D1, BOARD_LCD_D2, BOARD_LCD_D3);
 
     // 4) Panel IO — DC=GPIO45, CS=GPIO14, 80MHz, quad mode (from BSP)
-    //    trans_queue_depth=1 : mode synchrone, indispensable car on réutilise
-    //    un seul bounce buffer — chaque draw_bitmap doit finir avant le suivant.
+    //    trans_queue_depth=1 : synchrone mode, essential because we reuse
+    //    a single bounce buffer — each draw_bitmap must finish before the next one.
     esp_lcd_panel_io_handle_t io = NULL;
     esp_lcd_panel_io_spi_config_t io_cfg = {
         .cs_gpio_num = BOARD_LCD_CS,

@@ -32,3 +32,6 @@
 // ===== Whisper distant  =====
 #define WHISPER_URL         "http://X.X.X.X:XXXX/transcribe"
 #define WHISPER_TOKEN       SECRET_WHISPER_TOKEN
+
+// ===== TTS backend =====
+#define TTS_URL             "http://X.X.X.X:XXXX/tts"

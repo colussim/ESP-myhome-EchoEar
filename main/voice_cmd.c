@@ -1,9 +1,11 @@
 #include "voice_cmd.h"
+#include "wake_local.h"
 #include "config.h"
 #include "audio_player.h"
 #include "ha_client.h"
 #include "led_anim.h"
 #include "face_anim.h"
+
 
 #include <string.h>
 #include <math.h>
@@ -101,6 +103,7 @@ static void write_wav_header(uint8_t *h, uint32_t num_samples, uint32_t sr)
 static void play_and_wait(int file_id)
 {
     audio_player_play_file(file_id);
+    vTaskDelay(pdMS_TO_TICKS(50));   /* allow time for the is_playing flag to be positioned */
     while (audio_player_is_playing()) {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
@@ -116,6 +119,14 @@ static void ensure_mic_running(void)
         esp_err_t ret = audio_player_mic_start();
         if (ret != ESP_OK) {
             ESP_LOGW(TAG, "audio_player_mic_start failed: %s", esp_err_to_name(ret));
+            return;
+        }
+        /* Wait for the mic to be actually active before continuing (max 2 s) */
+        for (int i = 0; i < 40 && !audio_player_mic_is_active(); i++) {
+            vTaskDelay(pdMS_TO_TICKS(50));
+        }
+        if (!audio_player_mic_is_active()) {
+            ESP_LOGW(TAG, "Mic still inactive after 2 s");
         }
     }
 }
@@ -474,88 +485,65 @@ static void voice_cmd_task(void *arg)
     char backend_json[1024];
     backend_result_t backend;
 
-    while (1) {
-        if (!audio_player_mic_is_active()) {
-            vTaskDelay(pdMS_TO_TICKS(100));
-            ensure_mic_running();
-            continue;
-        }
+while (1) {
+    // Wait for the local wake word (blocking)
+    ESP_LOGI(TAG, "En attente du wake word local...");
+    xEventGroupWaitBits(g_wake_event_group, WAKE_WORD_DETECTED_BIT,
+                        pdTRUE, pdFALSE, portMAX_DELAY);
 
-        backend_json[0] = '\0';
-        backend_result_init(&backend);
+    // Wake detected — play "how can I help you"
+    ESP_LOGI(TAG, "Wake word received, waiting for command...");
+    play_and_wait(7);
 
-        ESP_LOGI(TAG, "State: %s",
-                 (s_state == VOICE_STATE_WAIT_WAKE) ? "WAIT_WAKE" : "WAIT_COMMAND");
+    // Start the mic for the command
+    ensure_mic_running();
 
-        int timeout_frames = (s_state == VOICE_STATE_WAIT_COMMAND) ? FOLLOWUP_TIMEOUT : 0;
+    // Capture the command
+    size_t samples = record_utterance(rec_buf, frame, FOLLOWUP_TIMEOUT);
 
-        size_t samples = record_utterance(rec_buf, frame, timeout_frames);
-        if (samples == 0) {
-            if (s_state == VOICE_STATE_WAIT_COMMAND) {
-                ESP_LOGI(TAG, "No command after wake, back to WAIT_WAKE");
-                s_state = VOICE_STATE_WAIT_WAKE;
+    // Mic no longer needed — release before backend
+    ensure_mic_stopped();
+
+    // Signal to wake_local that the command is finished
+    // (fetch_task can resume listening)
+    xEventGroupSetBits(g_wake_event_group, WAKE_WORD_DONE_BIT);
+
+    if (samples == 0) {
+        ESP_LOGI(TAG, "No command detected");
+        continue;
+    }
+
+    // Send to Ollama backend
+    led_anim_start();
+    bool ok = backend_call_async(rec_buf, samples, backend_json, sizeof(backend_json));
+    led_anim_stop();
+
+    if (!ok || !parse_backend_json(backend_json, &backend)) {
+        play_and_wait(AUDIO_MSG_ERROR);
+        continue;
+    }
+
+    if (backend.status_success && strcmp(backend.category, "HA") == 0 && backend.ha_ok) {
+        play_and_wait(AUDIO_MSG_FAIT);
+    } else if (backend.status_success && strcmp(backend.category, "SPEECH") == 0 && backend.reply[0]) {
+        uint8_t *audio_buf = NULL;
+        size_t   audio_len = 0;
+        esp_err_t tts_ret = ha_tts_speak(backend.reply, &audio_buf, &audio_len);
+        if (tts_ret == ESP_OK) {
+            /* audio_player_play_buffer automatically frees audio_buf */
+            audio_player_play_buffer(audio_buf, audio_len);
+            vTaskDelay(pdMS_TO_TICKS(50));
+            while (audio_player_is_playing()) {
+                vTaskDelay(pdMS_TO_TICKS(100));
             }
-            ensure_mic_running();
-            continue;
-        }
-
-        ensure_mic_stopped();
-
-        led_anim_start();
-        bool ok = backend_call_async(rec_buf, samples, backend_json, sizeof(backend_json));
-        led_anim_stop();
-
-        if (!ok) {
-            ESP_LOGW(TAG, "Backend call failed");
-            if (s_state == VOICE_STATE_WAIT_COMMAND) {
-                play_and_wait(AUDIO_MSG_ERROR);
-                s_state = VOICE_STATE_WAIT_WAKE;
-            }
-            ensure_mic_running();
-            continue;
-        }
-
-        if (!parse_backend_json(backend_json, &backend)) {
-            ESP_LOGW(TAG, "Backend JSON parse failed");
-            if (s_state == VOICE_STATE_WAIT_COMMAND) {
-                play_and_wait(AUDIO_MSG_ERROR);
-                s_state = VOICE_STATE_WAIT_WAKE;
-            }
-            ensure_mic_running();
-            continue;
-        }
-
-        if (s_state == VOICE_STATE_WAIT_WAKE) {
-            if (backend.status_success &&
-                strcmp(backend.category, "WAKE") == 0 &&
-                backend.kiraactive) {
-
-                ESP_LOGI(TAG, "Wake accepted by backend");
-                play_and_wait(7);
-                s_state = VOICE_STATE_WAIT_COMMAND;
-            } else {
-                ESP_LOGI(TAG, "Wake not detected");
-            }
-
-            ensure_mic_running();
-            continue;
-        }
-
-        /* WAIT_COMMAND */
-        if (backend.status_success &&
-            strcmp(backend.category, "HA") == 0 &&
-            backend.ha_ok) {
-
-            ESP_LOGI(TAG, "HA action confirmed");
-            play_and_wait(AUDIO_MSG_FAIT);
         } else {
-            ESP_LOGW(TAG, "HA action failed or not acknowledged");
             play_and_wait(AUDIO_MSG_ERROR);
         }
-
-        s_state = VOICE_STATE_WAIT_WAKE;
-        ensure_mic_running();
+    } else {
+        play_and_wait(AUDIO_MSG_ERROR);
     }
+}
+
 }
 
 /* -------------------------------------------------------------------------- */

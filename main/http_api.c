@@ -298,7 +298,7 @@ static esp_err_t handle_playtxt(httpd_req_t *req)
         return ESP_OK;
     }
 
-    // Allouer le buffer en PSRAM
+    // Allocate buffer for MP3 data (with some extra space just in case)
     size_t buf_cap = content_length > 0 ? (size_t)content_length + 1024 : 128 * 1024;
     if (buf_cap > 512 * 1024) buf_cap = 512 * 1024;
 

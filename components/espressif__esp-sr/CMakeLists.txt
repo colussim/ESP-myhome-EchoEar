@@ -81,28 +81,27 @@ if((${IDF_TARGET} STREQUAL "esp32s3") OR (${IDF_TARGET} STREQUAL "esp32p4") OR (
 
 endif()
 
-# Add model partition and flash srmodels.bin
-if(CONFIG_PARTITION_TABLE_CUSTOM)
-    partition_table_get_partition_info(size "--partition-name model" "size")
-    partition_table_get_partition_info(offset "--partition-name model" "offset")
+ if(CONFIG_PARTITION_TABLE_CUSTOM)
+     partition_table_get_partition_info(size "--partition-name model" "size")
+     partition_table_get_partition_info(offset "--partition-name model" "offset")
 
-    if("${size}" AND "${offset}")
-        set(MVMODEL_EXE ${COMPONENT_PATH}/model/movemodel.py)
-        idf_build_get_property(build_dir BUILD_DIR)
-        set(image_file ${build_dir}/srmodels/srmodels.bin)
+     if("${size}" AND "${offset}")
+         set(MVMODEL_EXE ${COMPONENT_PATH}/model/movemodel.py)
+         idf_build_get_property(build_dir BUILD_DIR)
+         set(image_file ${build_dir}/srmodels/srmodels.bin)
 
-        add_custom_command(
-            OUTPUT ${image_file}
-            COMMENT "Move and Pack models..."
-            COMMAND python ${MVMODEL_EXE} -d1 ${SDKCONFIG} -d2 ${COMPONENT_PATH} -d3 ${build_dir}
-            DEPENDS ${SDKCONFIG}
-            VERBATIM)
+         add_custom_command(
+             OUTPUT ${image_file}
+             COMMENT "Move and Pack models..."
+             COMMAND python ${MVMODEL_EXE} -d1 ${SDKCONFIG} -d2 ${COMPONENT_PATH} -d3 ${build_dir}
+             DEPENDS ${SDKCONFIG}
+             VERBATIM)
 
-        add_custom_target(srmodels_bin ALL DEPENDS ${image_file})
-        add_dependencies(flash srmodels_bin)
-        esptool_py_flash_to_partition(flash "model" "${image_file}")
-    else()
-        set(message "Failed to find model in partition table file"
-                    "Please add a line(Name=model) to the partition file if you want to use esp-sr models.")
-    endif()
-endif()
+         add_custom_target(srmodels_bin ALL DEPENDS ${image_file})
+         add_dependencies(flash srmodels_bin)
+         esptool_py_flash_to_partition(flash "model" "${image_file}")
+     else()
+         set(message "Failed to find model in partition table file"
+                     "Please add a line(Name=model) to the partition file if you want to use esp-sr models.")
+     endif()
+ endif()
