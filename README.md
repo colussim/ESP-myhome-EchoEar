@@ -89,7 +89,7 @@ This approach ensures:
 - consistent voice quality
 - reduced backend load
 
-## Visual Assets
+## 🖼️ Visual Assets
 
 The avatar images (Kira) are converted into binary format and stored in:
 
@@ -553,6 +553,17 @@ All JSON error responses share the same structure:
 | GET | `/face/set?x=X&y=Y` | yes | Set face position |
 | GET | `/wake` | yes | Trigger wake event |
 
+
+---
+
+## 🚀 Conclusion
+
+ESP-VoCat is an evolving project aimed at building a fully local AI voice satellite.
+
+The `main` branch reflects a stable and usable version of the system.  
+New features and improvements are continuously developed and integrated over time.
+
+Feel free to follow the project for upcoming updates.
 
 ---
 
