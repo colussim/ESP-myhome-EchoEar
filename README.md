@@ -290,7 +290,7 @@ The patch-based approach provides a better balance between:
 
 ---
 
-## EchoEar Satellite — HTTP API Reference
+## 🌐 HTTP API Reference
 
 The satellite exposes a lightweight HTTP server (port **80**) that lets you control audio playback, TTS, face animation, and trigger a wake event.
 
@@ -298,7 +298,7 @@ All endpoints use **GET** requests. No request body is required.
 
 ---
 
-### Authentication
+### 🔐 Authentication
 
 When `ENABLE_AUTH` is set to `1` in `config.h`, every request must include a valid API token. Two methods are accepted:
 
@@ -316,7 +316,7 @@ If the token is missing or incorrect the server returns `401`:
 
 ---
 
-### Endpoints
+### 📍 Endpoints
 
 #### `GET /play`
 
@@ -520,7 +520,7 @@ OK
 
 ---
 
-### Error format
+### ❌ Error format
 
 All JSON error responses share the same structure:
 
@@ -538,7 +538,7 @@ All JSON error responses share the same structure:
 
 ---
 
-### Quick reference
+### 📋 Quick reference
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
