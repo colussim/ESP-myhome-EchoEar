@@ -296,10 +296,10 @@ Example:
 ```
 
 ⚠️ Important
-	•	Never commit secret.h to version control
-	•	Keep your API keys and tokens private
-	•	Ensure all endpoints are reachable from the ESP32
-	
+- Never commit secret.h to version control
+- Keep your API keys and tokens private
+- Ensure all endpoints are reachable from the ESP32
+
 ---
 
 
