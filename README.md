@@ -241,6 +241,67 @@ The model name is defined in *wake_local.h*.
 
 ---
 
+## ⚙️ Project Configuration
+
+Before building the project, you must configure your environment by creating two files: secret.h and config.h.
+
+**🔐 1. Secrets configuration**
+
+Rename the file:
+
+```bash
+secret-example.h → secret.h
+
+```
+
+Then edit secret.h and replace all placeholder values with your own credentials:
+
+```c
+#pragma once
+
+#define SECRET_WIFI_SSID         "YOUR_WIFI_SSID"
+#define SECRET_WIFI_PASSWORD     "YOUR_WIFI_PASSWORD"
+
+#define SECRET_HA_TOKEN          "YOUR_HA_TOKEN"
+#define SECRET_API_TOKEN         "YOUR_API_TOKEN"
+#define SECRET_WHISPER_TOKEN     "YOUR_WHISPER_TOKEN"
+#define SECRET_ELEVENLABS_KEY    "YOUR_ELEVENLABS_KEY"
+
+```
+
+**🛠️ 2. Main configuration**
+
+```bash
+config-example.h → config.h
+
+```
+Then update the configuration according to your setup:
+- Set your network configuration (Wi-Fi, static IP if enabled)
+- Configure your Home Assistant instance (HA_URL)
+- Provide your backend endpoints (Whisper / TTS)
+- Enable or disable features such as authentication or ElevenLabs
+
+Example:
+
+```c
+#define WIFI_SSID           SECRET_WIFI_SSID
+#define WIFI_PASSWORD       SECRET_WIFI_PASSWORD
+#define WIFI_USE_STATIC_IP  1
+#define WIFI_IP             "X.X.X.X"
+
+#define HA_URL              "http://X.X.X.X:8123"
+#define WHISPER_URL         "http://X.X.X.X:XXXX/transcribe"
+#define TTS_URL             "http://X.X.X.X:XXXX/tts"
+
+```
+
+⚠️ Important
+	•	Never commit secret.h to version control
+	•	Keep your API keys and tokens private
+	•	Ensure all endpoints are reachable from the ESP32
+	
+---
+
 
 ## 👩 KIRA Avatar Display (ESP32-S3)
 
