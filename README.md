@@ -180,7 +180,7 @@ idf.py set-target esp32s3
 idf.py add-dependency "espressif/minimp3"
 idf.py add-dependency "espressif/esp_lcd_st77916"
 idf.py add-dependency "espressif/esp_jpeg"
-idf.py add-dependency "  espressif/esp_lcd_touch_cst816s"
+idf.py add-dependency "espressif/esp_lcd_touch_cst816s"
   
 idf.py reconfigure
 
