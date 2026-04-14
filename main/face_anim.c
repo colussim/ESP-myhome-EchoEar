@@ -292,9 +292,9 @@ static void face_anim_task(void *arg)
         // restore background under mouth patch
         blit_patch(fb, s_bg_mouth, s_mouth_x ,s_mouth_y, MOUTH_W, MOUTH_H);
 
-        // smooth amplitude to avoid jitter
+        // smooth amplitude — réponse rapide pour suivre les variations de la voix
         float target = s_talking ? (float)s_target_amplitude : 0.0f;
-        smoothed_amp = (smoothed_amp * 0.75f) + (target * 0.25f);
+        smoothed_amp = (smoothed_amp * 0.4f) + (target * 0.6f);
 
         int mouth_idx = mouth_from_amplitude((uint8_t)smoothed_amp);
 
@@ -304,6 +304,12 @@ static void face_anim_task(void *arg)
     display_flush();
     vTaskDelay(pdMS_TO_TICKS(30));
     continue;
+        }
+
+        // Oscillation syllabique : alterne 1 frame vers le bas toutes les ~120 ms
+        // pour donner un mouvement visible même quand l'amplitude est stable
+        if (mouth_idx > 0 && (frame % 8) >= 4) {
+            mouth_idx--;
         }
 
         if (mouth_idx < 0 || mouth_idx >= MOUTH_FRAME_COUNT) {

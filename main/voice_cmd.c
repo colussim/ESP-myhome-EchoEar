@@ -61,6 +61,7 @@ typedef struct {
     bool status_success;
     bool kiraactive;
     bool ha_ok;
+    bool expect_reply;
     char status[32];
     char heard[512];
     char reply[1024];
@@ -195,6 +196,11 @@ static bool parse_backend_json(const char *json_text, backend_result_t *out)
 
     if (cJSON_IsString(category) && category->valuestring) {
         strncpy(out->category, category->valuestring, sizeof(out->category) - 1);
+    }
+
+    cJSON *expect_reply = cJSON_GetObjectItemCaseSensitive(root, "expect_reply");
+    if (cJSON_IsBool(expect_reply)) {
+        out->expect_reply = cJSON_IsTrue(expect_reply);
     }
 
     out->valid = true;
@@ -486,62 +492,80 @@ static void voice_cmd_task(void *arg)
     backend_result_t backend;
 
 while (1) {
-    // Wait for the local wake word (blocking)
+    // --- Attente du wake word ---
     ESP_LOGI(TAG, "En attente du wake word local...");
     xEventGroupWaitBits(g_wake_event_group, WAKE_WORD_DETECTED_BIT,
                         pdTRUE, pdFALSE, portMAX_DELAY);
 
-    // Wake detected — play "how can I help you"
-    ESP_LOGI(TAG, "Wake word received, waiting for command...");
+    ESP_LOGI(TAG, "Wake word recu, attente de la commande...");
     play_and_wait(7);
 
-    // Start the mic for the command
     ensure_mic_running();
-
-    // Capture the command
     size_t samples = record_utterance(rec_buf, frame, FOLLOWUP_TIMEOUT);
-
-    // Mic no longer needed — release before backend
     ensure_mic_stopped();
 
-    // Signal to wake_local that the command is finished
-    // (fetch_task can resume listening)
-    xEventGroupSetBits(g_wake_event_group, WAKE_WORD_DONE_BIT);
-
     if (samples == 0) {
-        ESP_LOGI(TAG, "No command detected");
+        ESP_LOGI(TAG, "Aucune commande detectee");
+        xEventGroupSetBits(g_wake_event_group, WAKE_WORD_DONE_BIT);
         continue;
     }
 
-    // Send to Ollama backend
-    led_anim_start();
-    bool ok = backend_call_async(rec_buf, samples, backend_json, sizeof(backend_json));
-    led_anim_stop();
+    // --- Boucle de conversation (max 3 tours de follow-up) ---
+    // WAKE_WORD_DONE_BIT est retarde jusqu'a la fin pour eviter
+    // que le wake word se declenche pendant un follow-up
+    for (int turn = 0; turn < 3; turn++) {
+        ESP_LOGI(TAG, "Tour %d : envoi au backend", turn + 1);
 
-    if (!ok || !parse_backend_json(backend_json, &backend)) {
-        play_and_wait(AUDIO_MSG_ERROR);
-        continue;
-    }
+        led_anim_start();
+        bool ok = backend_call_async(rec_buf, samples, backend_json, sizeof(backend_json));
+        led_anim_stop();
 
-    if (backend.status_success && strcmp(backend.category, "HA") == 0 && backend.ha_ok) {
-        play_and_wait(AUDIO_MSG_FAIT);
-    } else if (backend.status_success && strcmp(backend.category, "SPEECH") == 0 && backend.reply[0]) {
-        uint8_t *audio_buf = NULL;
-        size_t   audio_len = 0;
-        esp_err_t tts_ret = ha_tts_speak(backend.reply, &audio_buf, &audio_len);
-        if (tts_ret == ESP_OK) {
-            /* audio_player_play_buffer automatically frees audio_buf */
-            audio_player_play_buffer(audio_buf, audio_len);
-            vTaskDelay(pdMS_TO_TICKS(50));
-            while (audio_player_is_playing()) {
-                vTaskDelay(pdMS_TO_TICKS(100));
+        if (!ok || !parse_backend_json(backend_json, &backend)) {
+            play_and_wait(AUDIO_MSG_ERROR);
+            break;
+        }
+
+        if (backend.status_success && strcmp(backend.category, "HA") == 0 && backend.ha_ok) {
+            play_and_wait(AUDIO_MSG_FAIT);
+            break;
+        } else if (backend.status_success && strcmp(backend.category, "SPEECH") == 0 && backend.reply[0]) {
+            uint8_t *audio_buf = NULL;
+            size_t   audio_len = 0;
+            esp_err_t tts_ret = ha_tts_speak(backend.reply, &audio_buf, &audio_len);
+            if (tts_ret == ESP_OK) {
+                audio_player_play_buffer(audio_buf, audio_len);
+                vTaskDelay(pdMS_TO_TICKS(50));
+                while (audio_player_is_playing()) {
+                    vTaskDelay(pdMS_TO_TICKS(100));
+                }
+            } else {
+                play_and_wait(AUDIO_MSG_ERROR);
+                break;
             }
+
+            if (!backend.expect_reply) {
+                break;  // conversation terminee
+            }
+
+            // Le backend attend une reponse — on repart en ecoute directe
+            ESP_LOGI(TAG, "expect_reply=true, ecoute du follow-up (tour %d)", turn + 1);
+            ensure_mic_running();
+            samples = record_utterance(rec_buf, frame, FOLLOWUP_TIMEOUT);
+            ensure_mic_stopped();
+
+            if (samples == 0) {
+                ESP_LOGI(TAG, "Pas de reponse au follow-up, fin de conversation");
+                break;
+            }
+            // sinon : prochain tour de boucle avec les nouveaux samples
         } else {
             play_and_wait(AUDIO_MSG_ERROR);
+            break;
         }
-    } else {
-        play_and_wait(AUDIO_MSG_ERROR);
     }
+
+    // Fin de la conversation — on restitue le wake word
+    xEventGroupSetBits(g_wake_event_group, WAKE_WORD_DONE_BIT);
 }
 
 }

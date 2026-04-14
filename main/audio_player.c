@@ -503,6 +503,15 @@ static void play_wav_from_buffer(const uint8_t *buf, size_t len, const char *lab
                 s_wav_stereo[i * 2 + 1] = (int16_t)(pcm[(off + i) * 2 + 1] * s_volume);
             }
         }
+        // Amplitude for mouth animation (same logic as MP3 path)
+        int32_t peak = 0;
+        for (size_t i = 0; i < chunk; i++) {
+            int32_t v = pcm[off + i];
+            if (v < 0) v = -v;
+            if (v > peak) peak = v;
+        }
+        face_anim_set_amplitude((uint8_t)(peak * 255 / 32768));
+
         size_t written = 0;
         i2s_channel_write(s_i2s_tx, s_wav_stereo, chunk * 2 * sizeof(int16_t),
                           &written, pdMS_TO_TICKS(1000));
