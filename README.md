@@ -35,7 +35,7 @@ This repository focuses on:
 
 The current prototype is based on:
 
-- [**ESP-VoCat v1.2**](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp-vocat/user_guide_v1.2.html)) by Espressif  
+- [**ESP-VoCat v1.2**](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp-vocat/user_guide_v1.2.html) by Espressif  
   (ESP32-S3 with integrated audio and display capabilities)
 
 This platform provides:
